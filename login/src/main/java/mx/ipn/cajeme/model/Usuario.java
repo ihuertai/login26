@@ -1,6 +1,7 @@
 package mx.ipn.cajeme.model;
 
 import jakarta.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name="usuarios")
@@ -23,6 +24,14 @@ public class Usuario {
     private Boolean activo = true;
 
     private Integer intentosFallidos = 0;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "usuario_roles",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "rol_id")
+    )
+    private Set<Rol> roles;
 
     public Usuario() {}
 
@@ -76,5 +85,13 @@ public class Usuario {
 
     public void setIntentosFallidos(Integer intentosFallidos) {
         this.intentosFallidos = intentosFallidos;
+    }
+
+    public Set<Rol> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Rol> roles) {
+        this.roles = roles;
     }
 }

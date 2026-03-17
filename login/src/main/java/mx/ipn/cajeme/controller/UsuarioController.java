@@ -14,10 +14,19 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    // Crear usuario
     @PostMapping
     public Usuario crearUsuario(@RequestBody Usuario usuario){
         return usuarioService.crearUsuario(usuario);
     }
 
+    // 🔐 Recuperar contraseña
+    @PostMapping("/recuperar-password")
+    public String recuperarPassword(@RequestParam String username){
+
+        usuarioService.recuperarPassword(username);
+
+        return "Se envió una contraseña temporal a tu correo";
+    }
 
 }
