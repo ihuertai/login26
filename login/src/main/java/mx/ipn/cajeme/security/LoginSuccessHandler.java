@@ -29,7 +29,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String username = authentication.getName();
 
         Usuario usuario = usuarioRepository
-                .findByUsername(username)
+                .findByUsernameAndEliminadoFalse(username)
                 .orElseThrow();
 
         usuario.setIntentosFallidos(0);

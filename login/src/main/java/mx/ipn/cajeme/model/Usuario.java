@@ -1,28 +1,34 @@
 package mx.ipn.cajeme.model;
 
 import jakarta.persistence.*;
+
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
-@Table(name="usuarios")
-public class Usuario {
+@Table(name = "usuarios")
+public class Usuario extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 80)
     private String username;
 
+    @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 160)
     private String email;
 
+    @Column(nullable = false, length = 30)
     private String telefono;
 
+    @Column(nullable = false)
     private Boolean activo = true;
 
+    @Column(nullable = false)
     private Integer intentosFallidos = 0;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -31,9 +37,7 @@ public class Usuario {
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "rol_id")
     )
-    private Set<Rol> roles;
-
-    public Usuario() {}
+    private Set<Rol> roles = new LinkedHashSet<>();
 
     public Long getId() {
         return id;
