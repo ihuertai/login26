@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,38 @@ public class JwtService {
         return simaCallbackUrl + "?token=" + token;
     }
 
+    public TokenPayload validateToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token no proporcionado");
+        }
+
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Token invalido");
+        }
+
+        String signedContent = parts[0] + "." + parts[1];
+        String expectedSignature = sign(signedContent);
+        if (!expectedSignature.equals(parts[2])) {
+            throw new IllegalArgumentException("Firma del token invalida");
+        }
+
+        Map<String, Object> payload = decodePayload(parts[1]);
+        validatePayload(payload);
+
+        Long userId = ((Number) payload.get("uid")).longValue();
+        String username = String.valueOf(payload.get("sub"));
+        String email = String.valueOf(payload.get("email"));
+        Object rawRoles = payload.get("roles");
+        List<String> roles = rawRoles instanceof List<?> list
+                ? list.stream().map(String::valueOf).toList()
+                : Collections.emptyList();
+
+        return new TokenPayload(userId, username, email, roles);
+    }
+
     private String encodeJson(Map<String, Object> value) {
+        try {
             return Base64.getUrlEncoder().withoutPadding()
                     .encodeToString(objectMapper.writeValueAsBytes(value));
         } catch (JsonProcessingException ex) {
@@ -80,5 +112,33 @@ public class JwtService {
         } catch (Exception ex) {
             throw new IllegalStateException("No fue posible firmar el token", ex);
         }
+    }
+
+    private Map<String, Object> decodePayload(String encodedPayload) {
+        try {
+            byte[] decoded = Base64.getUrlDecoder().decode(encodedPayload);
+            return objectMapper.readValue(decoded, Map.class);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("No fue posible leer el token", ex);
+        }
+    }
+
+    private void validatePayload(Map<String, Object> payload) {
+        if (!issuer.equals(String.valueOf(payload.get("iss")))) {
+            throw new IllegalArgumentException("Emisor invalido");
+        }
+
+        long expiration = ((Number) payload.get("exp")).longValue();
+        if (Instant.ofEpochSecond(expiration).isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Token expirado");
+        }
+    }
+
+    public record TokenPayload(
+            Long userId,
+            String username,
+            String email,
+            List<String> roles
+    ) {
     }
 }

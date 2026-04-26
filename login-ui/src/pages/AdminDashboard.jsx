@@ -323,7 +323,7 @@ function AdminDashboard() {
                                 <div>
                                     <strong>{usuario.username}</strong>
                                     <p>{usuario.email}</p>
-                                    <small>{usuario.roles.map((rol) => rol.nombre).join(", ")}</small>
+                                    <small>{usuario.roles.map((rol) => rol.nombre ?? rol).join(", ")}</small>
                                     {usuario.id === currentUserId ? <small>Usuario actual</small> : null}
                                 </div>
                                 <div className="table-actions">
@@ -438,7 +438,7 @@ function AdminDashboard() {
                         <div><strong>Activo:</strong> {selectedUser.activo ? "Si" : "No"}</div>
                         <div><strong>Usuario actual:</strong> {selectedUser.id === currentUserId ? "Si" : "No"}</div>
                         <div><strong>Intentos fallidos:</strong> {selectedUser.intentosFallidos}</div>
-                        <div><strong>Roles:</strong> {selectedUser.roles.map((rol) => rol.nombre).join(", ")}</div>
+                        <div><strong>Roles:</strong> {selectedUser.roles.map((rol) => rol.nombre ?? rol).join(", ")}</div>
                         <div><strong>Creado por:</strong> {selectedUser.creadoPor}</div>
                         <div><strong>Actualizado por:</strong> {selectedUser.actualizadoPor}</div>
                         <div><strong>Fecha creacion:</strong> {selectedUser.fechaCreacion}</div>

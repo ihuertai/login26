@@ -45,4 +45,12 @@ public class AuthController {
     public UsuarioResponse registrar(@Valid @RequestBody UsuarioCreateRequest request) {
         return usuarioService.crearUsuario(request);
     }
+
+    @GetMapping("/admin-bridge")
+    public void adminBridge(@RequestParam String token,
+                            HttpServletRequest request,
+                            HttpServletResponse response) throws Exception {
+        authService.createSessionFromToken(token, request, response);
+        response.sendRedirect("http://localhost:5173/admin-bridge?ssoToken=" + token + "&bridged=1");
+    }
 }

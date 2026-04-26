@@ -49,10 +49,10 @@ function Login() {
 
             localStorage.setItem("login-session", JSON.stringify(response));
             if (response.redirectUrl) {
-                window.location.href = response.redirectUrl;
+                window.location.replace(response.redirectUrl);
                 return;
             }
-            navigate("/admin");
+            navigate("/admin", { replace: true });
         } catch (requestError) {
             setError(requestError.message);
         } finally {

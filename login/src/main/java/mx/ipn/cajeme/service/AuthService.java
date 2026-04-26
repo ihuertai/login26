@@ -9,6 +9,7 @@ import mx.ipn.cajeme.repository.UsuarioRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -90,6 +91,24 @@ public class AuthService {
         }
         SecurityContextHolder.clearContext();
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+    }
+
+    public void createSessionFromToken(String token, HttpServletRequest request, HttpServletResponse response) {
+        JwtService.TokenPayload payload = jwtService.validateToken(token);
+
+        Usuario usuario = usuarioRepository.findById(payload.userId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                usuario.getUsername(),
+                null,
+                payload.roles().stream().map(SimpleGrantedAuthority::new).toList()
+        );
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        new HttpSessionSecurityContextRepository().saveContext(context, request, response);
     }
 
     private String resolveClientKey(HttpServletRequest request) {
