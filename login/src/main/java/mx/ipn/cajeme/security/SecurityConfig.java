@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/recuperar-password", "/auth/registro", "/auth/admin-bridge").permitAll()
+                        .requestMatchers("/auth/login", "/auth/recuperar-password", "/auth/registro", "/auth/admin-bridge", "/auth/gerentes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/roles").permitAll()
                         .anyRequest().authenticated()
                 )

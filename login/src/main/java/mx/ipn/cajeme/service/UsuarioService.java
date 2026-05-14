@@ -2,6 +2,7 @@ package mx.ipn.cajeme.service;
 
 import mx.ipn.cajeme.dto.RolResponse;
 import mx.ipn.cajeme.dto.UsuarioCreateRequest;
+import mx.ipn.cajeme.dto.GerenteOptionResponse;
 import mx.ipn.cajeme.dto.UsuarioResponse;
 import mx.ipn.cajeme.dto.UsuarioUpdateRequest;
 import mx.ipn.cajeme.model.Rol;
@@ -48,6 +49,20 @@ public class UsuarioService {
         return usuarioRepository.findAllByEliminadoFalseOrderByUsernameAsc()
                 .stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<GerenteOptionResponse> listarGerentes() {
+        return usuarioRepository.findAllByEliminadoFalseOrderByUsernameAsc().stream()
+                .filter(usuario -> Boolean.TRUE.equals(usuario.getActivo()))
+                .filter(usuario -> usuario.getRoles().stream().anyMatch(rol -> "GERENTE".equalsIgnoreCase(rol.getNombre())))
+                .map(usuario -> new GerenteOptionResponse(
+                        usuario.getId(),
+                        usuario.getUsername(),
+                        usuario.getEmail(),
+                        usuario.getTelefono()
+                ))
                 .toList();
     }
 
